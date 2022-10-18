@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/AnomotImageServer.iml" filepath="$PROJECT_DIR$/.idea/AnomotImageServer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AnomotMediaServer.iml" filepath="$PROJECT_DIR$/.idea/AnomotMediaServer.iml" />
     </modules>
   </component>
 </project>

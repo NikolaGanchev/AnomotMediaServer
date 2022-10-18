@@ -1,7 +1,7 @@
 from PIL import Image
 from flask import Flask, request, send_file
 
-from utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash
+from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash
 
 app = Flask(__name__)
 
