@@ -1,5 +1,6 @@
 import os
 import pathlib
+import time
 import uuid
 from io import BytesIO
 
@@ -17,19 +18,27 @@ def set_up_utils():
 
 def is_valid_image(im: Image):
     try:
+        time1 = time.time()
         if im.format == 'GIF':
             return False
 
         im.load()
+        time2 = time.time()
+        print(time2 - time1)
         return True
     except Exception:
         return False
 
 
-def convert_to_webp(im: Image):
+def convert_to_webp(im: Image, size=6 * 1024 * 1024, quality=100):
     try:
+        print(size)
         img_io = BytesIO()
-        im.save(img_io, format='webp', quality=70, optimise=True)
+
+        if size > 5 * 1024 * 1024:
+            im.thumbnail((1920, 1080))
+
+        im.save(img_io, format='webp', quality=quality, optimise=False)
         img_io.seek(0)
         return img_io
     except Exception as e:
@@ -52,10 +61,17 @@ def save(im: Image):
         return None
 
 
+def delete_image(name):
+    if not os.path.isfile(f"{image_folder}{os.path.normpath(name)}.webp"):
+        return False
+    os.remove(f"{image_folder}{os.path.normpath(name)}.webp")
+    return True
+
+
 def get_image_path(name):
-    if not os.path.isfile(f"{image_folder}{name}.webp"):
+    if not os.path.isfile(f"{image_folder}{os.path.normpath(name)}.webp"):
         return None
-    return f"{image_folder}{name}.webp"
+    return f"{image_folder}{os.path.normpath(name)}.webp"
 
 
 def image_hash(im: Image):

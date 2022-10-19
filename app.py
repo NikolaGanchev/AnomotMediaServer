@@ -1,9 +1,13 @@
 from PIL import Image
 from flask import Flask, request, send_file
 
-from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash
+from app_utils import get_file_size
+from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash, \
+    delete_image
 
 app = Flask(__name__)
+
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
 set_up_utils()
 
@@ -40,7 +44,13 @@ def convert_to_webp_endpoint():
         return app.response_class(
             status=415
         )
-    img = convert_to_webp(Image.open(file))
+
+    size = get_file_size(file)
+    if size == -1:
+        img = convert_to_webp(Image.open(file), size=size)
+    else:
+        img = convert_to_webp(Image.open(file))
+
     if img is None:
         return app.response_class(
             status=415
@@ -83,7 +93,13 @@ def convert_and_save_image():
         return app.response_class(
             status=415
         )
-    img = convert_to_webp(Image.open(file))
+
+    size = get_file_size(file)
+    if size == -1:
+        img = convert_to_webp(Image.open(file), size=size)
+    else:
+        img = convert_to_webp(Image.open(file))
+
     if img is None:
         return app.response_class(
             status=415
@@ -122,12 +138,25 @@ def phash_image_endpoint():
         return app.response_class(
             status=415
         )
-    hash = image_hash(Image.open(file))
-    if hash is None:
+    phash = image_hash(Image.open(file))
+    if phash is None:
         return app.response_class(
             status=415
         )
-    return str(hash)
+    return str(phash)
+
+
+@app.route("/image/<name>", methods=['DELETE'])
+def delete_image_endpoint(name):
+    f = delete_image(name)
+    if f:
+        return app.response_class(
+            status=200
+        )
+    else:
+        return app.response_class(
+            status=404
+        )
 
 
 if __name__ == '__main__':
