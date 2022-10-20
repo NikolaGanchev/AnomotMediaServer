@@ -1,9 +1,26 @@
-from PIL import Image
 from flask import Flask, request, send_file
 
 from app_utils import get_file_size
 from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash, \
     delete_image
+from video_utils import is_valid_video
+
+from datetime import datetime
+import yappi
+import atexit
+
+
+# End profiling and save the results into file
+def output_profiler_stats_file():
+    profile_file_name = 'yappi1.pstat'
+    func_stats = yappi.get_func_stats()
+    func_stats.save(profile_file_name, type='pstat')
+    yappi.stop()
+    yappi.clear_stats()
+
+
+yappi.start()
+atexit.register(output_profiler_stats_file)
 
 app = Flask(__name__)
 
@@ -23,7 +40,7 @@ def is_valid_image_endpoint():
         return app.response_class(
             status=415
         )
-    if file and is_valid_image(Image.open(file)):
+    if file and is_valid_image(file):
         return app.response_class(
             status=200
         )
@@ -47,9 +64,9 @@ def convert_to_webp_endpoint():
 
     size = get_file_size(file)
     if size == -1:
-        img = convert_to_webp(Image.open(file), size=size)
+        img = convert_to_webp(file, size=size)
     else:
-        img = convert_to_webp(Image.open(file))
+        img = convert_to_webp(file)
 
     if img is None:
         return app.response_class(
@@ -70,7 +87,7 @@ def save_image_endpoint():
         return app.response_class(
             status=415
         )
-    name = save(Image.open(file))
+    name = save(file)
     if name is None:
         return app.response_class(
             status=415
@@ -96,9 +113,9 @@ def convert_and_save_image():
 
     size = get_file_size(file)
     if size == -1:
-        img = convert_to_webp(Image.open(file), size=size)
+        img = convert_to_webp(file, size=size)
     else:
-        img = convert_to_webp(Image.open(file))
+        img = convert_to_webp(file)
 
     if img is None:
         return app.response_class(
@@ -138,7 +155,7 @@ def phash_image_endpoint():
         return app.response_class(
             status=415
         )
-    phash = image_hash(Image.open(file))
+    phash = image_hash(file)
     if phash is None:
         return app.response_class(
             status=415
@@ -156,6 +173,40 @@ def delete_image_endpoint(name):
     else:
         return app.response_class(
             status=404
+        )
+
+
+@app.route("/video/valid", methods=['POST'])
+def is_valid_video_endpoint():
+    if 'file' not in request.files:
+        return app.response_class(
+            status=415
+        )
+    file = request.files['file']
+    if file.filename == '':
+        return app.response_class(
+            status=415
+        )
+    if is_valid_video(file):
+        return app.response_class(
+            status=200
+        )
+    else:
+        return app.response_class(
+            status=415
+        )
+
+
+@app.route("/video/convert/save", methods=['POST'])
+def convert_and_save_video():
+    if 'file' not in request.files:
+        return app.response_class(
+            status=415
+        )
+    file = request.files['file']
+    if file.filename == '':
+        return app.response_class(
+            status=415
         )
 
 

@@ -1,5 +1,3 @@
-import time
-
 from werkzeug.datastructures import FileStorage
 
 

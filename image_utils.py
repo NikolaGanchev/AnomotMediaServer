@@ -1,12 +1,12 @@
 import os
 import pathlib
-import time
 import uuid
 from io import BytesIO
 
 import imagehash
 from werkzeug.datastructures import FileStorage
 from PIL import Image
+from werkzeug.utils import secure_filename
 
 image_folder = "./image/"
 
@@ -16,23 +16,21 @@ def set_up_utils():
         os.mkdir(image_folder)
 
 
-def is_valid_image(im: Image):
+def is_valid_image(file: FileStorage):
     try:
-        time1 = time.time()
+        im = Image.open(file)
         if im.format == 'GIF':
             return False
 
         im.load()
-        time2 = time.time()
-        print(time2 - time1)
         return True
     except Exception:
         return False
 
 
-def convert_to_webp(im: Image, size=6 * 1024 * 1024, quality=100):
+def convert_to_webp(file: FileStorage, size=6 * 1024 * 1024, quality=100):
     try:
-        print(size)
+        im = Image.open(file)
         img_io = BytesIO()
 
         if size > 5 * 1024 * 1024:
@@ -52,8 +50,9 @@ def save_webp_io(img_io):
     return name.__str__()
 
 
-def save(im: Image):
+def save(file: FileStorage):
     try:
+        im = Image.open(file)
         name = uuid.uuid4()
         im.save(pathlib.Path(f"{image_folder}{name}.{im.format.lower()}"))
         return name.__str__()
@@ -62,20 +61,21 @@ def save(im: Image):
 
 
 def delete_image(name):
-    if not os.path.isfile(f"{image_folder}{os.path.normpath(name)}.webp"):
+    if not os.path.isfile(f"{image_folder}{secure_filename(name)}.webp"):
         return False
-    os.remove(f"{image_folder}{os.path.normpath(name)}.webp")
+    os.remove(f"{image_folder}{secure_filename(name)}.webp")
     return True
 
 
 def get_image_path(name):
-    if not os.path.isfile(f"{image_folder}{os.path.normpath(name)}.webp"):
+    if not os.path.isfile(f"{image_folder}{secure_filename(name)}.webp"):
         return None
-    return f"{image_folder}{os.path.normpath(name)}.webp"
+    return f"{image_folder}{secure_filename(name)}.webp"
 
 
-def image_hash(im: Image):
+def image_hash(file: FileStorage):
     try:
+        im = Image.open(file)
         return bin(int(imagehash.average_hash(im).__str__(), base=16))[2:].zfill(64)
     except Exception as e:
         return None
