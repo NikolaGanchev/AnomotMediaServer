@@ -7,6 +7,9 @@ import imagehash
 from werkzeug.datastructures import FileStorage
 from PIL import Image
 from werkzeug.utils import secure_filename
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 image_folder = "./image/"
 
@@ -33,10 +36,9 @@ def convert_to_webp(file: FileStorage, size=6 * 1024 * 1024, quality=100):
         im = Image.open(file)
         img_io = BytesIO()
 
-        if size > 5 * 1024 * 1024:
-            im.thumbnail((1920, 1080))
+        im.thumbnail((1920, 1080))
 
-        im.save(img_io, format='webp', quality=quality, optimise=False)
+        im.save(img_io, format='webp', quality=quality, optimise=True)
         img_io.seek(0)
         return img_io
     except Exception as e:

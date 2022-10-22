@@ -5,23 +5,6 @@ from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, sav
     delete_image
 from video_utils import is_valid_video
 
-from datetime import datetime
-import yappi
-import atexit
-
-
-# End profiling and save the results into file
-def output_profiler_stats_file():
-    profile_file_name = 'yappi1.pstat'
-    func_stats = yappi.get_func_stats()
-    func_stats.save(profile_file_name, type='pstat')
-    yappi.stop()
-    yappi.clear_stats()
-
-
-yappi.start()
-atexit.register(output_profiler_stats_file)
-
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -63,8 +46,8 @@ def convert_to_webp_endpoint():
         )
 
     size = get_file_size(file)
-    if size == -1:
-        img = convert_to_webp(file, size=size)
+    if not size == -1:
+        img = convert_to_webp(file, size)
     else:
         img = convert_to_webp(file)
 
@@ -112,8 +95,8 @@ def convert_and_save_image():
         )
 
     size = get_file_size(file)
-    if size == -1:
-        img = convert_to_webp(file, size=size)
+    if not size == -1:
+        img = convert_to_webp(file, size)
     else:
         img = convert_to_webp(file)
 
