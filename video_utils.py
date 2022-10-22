@@ -13,10 +13,9 @@ def is_valid_video(file: FileStorage):
 
     response = json.loads(out.decode('utf-8'))
 
-    print(response)
-
     for stream in response['streams']:
         if stream['codec_type'] == 'video':
-            return True
+            if not '_pipe' in response['format']['format_name']:
+                return True
 
     return False
