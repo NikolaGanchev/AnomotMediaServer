@@ -1,13 +1,21 @@
+import os
+
 from flask import Flask, request, send_file
 
-from app_utils import get_file_size
-from image_utils import is_valid_image, convert_to_webp, save, set_up_utils, save_webp_io, get_image_path, image_hash, \
+from app_utils import get_file_size, media_folder
+from image_utils import is_valid_image, convert_to_webp, save, save_webp_io, get_image_path, image_hash, \
     delete_image
 from video_utils import is_valid_video
 
 app = Flask(__name__)
 
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+
+
+def set_up_utils():
+    if not os.path.isdir(media_folder):
+        os.mkdir(media_folder)
+
 
 set_up_utils()
 
@@ -180,8 +188,8 @@ def is_valid_video_endpoint():
         )
 
 
-@app.route("/video/convert/save", methods=['POST'])
-def convert_and_save_video():
+@app.route("/video/compress/save", methods=['POST'])
+def compress_and_save_video():
     if 'file' not in request.files:
         return app.response_class(
             status=415
@@ -190,6 +198,16 @@ def convert_and_save_video():
     if file.filename == '':
         return app.response_class(
             status=415
+        )
+    name = compress_and_save_video(file)
+    if name is None:
+        return app.response_class(
+            status=415
+        )
+    else:
+        return app.response_class(
+            name,
+            status=201
         )
 
 

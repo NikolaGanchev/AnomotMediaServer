@@ -9,20 +9,19 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 from pillow_heif import register_heif_opener
 
+from app_utils import media_folder
+
 register_heif_opener()
 
-image_folder = "./image/"
-
-
-def set_up_utils():
-    if not os.path.isdir(image_folder):
-        os.mkdir(image_folder)
+allowed_image_formats = ['png', 'jpeg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
 
 
 def is_valid_image(file: FileStorage):
     try:
         im = Image.open(file)
-        if im.format == 'GIF':
+
+        print(im.format)
+        if not im.format.lower() in allowed_image_formats:
             return False
 
         im.load()
@@ -47,7 +46,7 @@ def convert_to_webp(file: FileStorage, size=6 * 1024 * 1024, quality=100):
 
 def save_webp_io(img_io):
     name = uuid.uuid4()
-    with open(f"{image_folder}{name}.webp", 'wb') as f:
+    with open(f"{media_folder}{name}.webp", 'wb') as f:
         f.write(img_io.getbuffer())
     return name.__str__()
 
@@ -56,23 +55,23 @@ def save(file: FileStorage):
     try:
         im = Image.open(file)
         name = uuid.uuid4()
-        im.save(pathlib.Path(f"{image_folder}{name}.{im.format.lower()}"))
+        im.save(pathlib.Path(f"{media_folder}{name}.{im.format.lower()}"))
         return name.__str__()
     except Exception as e:
         return None
 
 
 def delete_image(name):
-    if not os.path.isfile(f"{image_folder}{secure_filename(name)}.webp"):
+    if not os.path.isfile(f"{media_folder}{secure_filename(name)}.webp"):
         return False
-    os.remove(f"{image_folder}{secure_filename(name)}.webp")
+    os.remove(f"{media_folder}{secure_filename(name)}.webp")
     return True
 
 
 def get_image_path(name):
-    if not os.path.isfile(f"{image_folder}{secure_filename(name)}.webp"):
+    if not os.path.isfile(f"{media_folder}{secure_filename(name)}.webp"):
         return None
-    return f"{image_folder}{secure_filename(name)}.webp"
+    return f"{media_folder}{secure_filename(name)}.webp"
 
 
 def image_hash(file: FileStorage):

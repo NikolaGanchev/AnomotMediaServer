@@ -1,5 +1,7 @@
 from werkzeug.datastructures import FileStorage
 
+media_folder = "./media/"
+
 
 def get_file_size(file: FileStorage):
     try:
