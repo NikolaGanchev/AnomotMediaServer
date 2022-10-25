@@ -2,9 +2,9 @@ import os
 
 from flask import Flask, request, send_file
 
-from app_utils import get_file_size, media_folder, temp_folder
-from image_utils import is_valid_image, compress_image, save, save_webp_io, get_image_path, image_hash, \
-    delete_image
+from app_utils import get_file_size, media_folder, temp_folder, get_media_path, delete_media
+from extension_type import ExtensionType
+from image_utils import is_valid_image, compress_image, save, save_webp_io, image_hash
 from video_utils import is_valid_video, compress_and_save_video
 
 app = Flask(__name__)
@@ -128,7 +128,7 @@ def convert_and_save_image():
 
 @app.route("/image/<name>", methods=['GET'])
 def get_image_endpoint(name):
-    f = get_image_path(name)
+    f = get_media_path(name, ExtensionType.IMAGE)
     if f is None:
         return app.response_class(
             status=404
@@ -158,7 +158,7 @@ def phash_image_endpoint():
 
 @app.route("/image/<name>", methods=['DELETE'])
 def delete_image_endpoint(name):
-    f = delete_image(name)
+    f = delete_media(name, ExtensionType.IMAGE)
     if f:
         return app.response_class(
             status=200
@@ -167,6 +167,30 @@ def delete_image_endpoint(name):
         return app.response_class(
             status=404
         )
+
+
+@app.route("/video/<name>", methods=['DELETE'])
+def delete_video_endpoint(name):
+    f = delete_media(name, ExtensionType.VIDEO)
+    if f:
+        return app.response_class(
+            status=200
+        )
+    else:
+        return app.response_class(
+            status=404
+        )
+
+
+@app.route("/video/<name>", methods=['GET'])
+def get_video_endpoint(name):
+    f = get_media_path(name, ExtensionType.VIDEO)
+    if f is None:
+        return app.response_class(
+            status=404
+        )
+    else:
+        return send_file(f, mimetype='image/webp')
 
 
 @app.route("/video/valid", methods=['POST'])

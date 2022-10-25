@@ -5,6 +5,7 @@ import uuid
 
 import ffmpeg
 from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
 
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension
 
@@ -67,6 +68,5 @@ def compress_and_save_video(file: FileStorage):
     finally:
         tmp.close()
         os.unlink(tmp.name)
-
 
 
