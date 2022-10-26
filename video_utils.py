@@ -1,23 +1,21 @@
 import json
+import os
 import pathlib
 import subprocess
+import tempfile
 import uuid
 
 import ffmpeg
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
 
-from app_utils import media_folder, media_width, media_height, temp_folder, get_extension
-
-import os, tempfile
-
-allowed_video_formats = ['mov', 'mp4', 'mkv']
+from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
+    allowed_video_extensions, allowed_video_formats_extensions
 
 
 def is_valid_video(file: FileStorage):
-    extension = not get_extension(file)
+    extension = get_extension(file)
 
-    if extension in allowed_video_formats:
+    if extension not in allowed_video_extensions:
         return False
 
     args = ['ffprobe', 'pipe:', '-show_entries', 'format=format_name,format_long_name', '-show_streams', '-of', 'json']
@@ -32,41 +30,41 @@ def is_valid_video(file: FileStorage):
     is_video = False
     for stream in response['streams']:
         if stream['codec_type'] == 'video':
-            if not '_pipe' in response['format']['format_name']:
+            if '_pipe' not in response['format']['format_name']:
                 is_video = True
 
     is_allowed_format = False
 
     for video_format in response['format']['format_name'].split(','):
-        if video_format in allowed_video_formats and video_format == extension:
+        if video_format in allowed_video_formats and extension in allowed_video_formats_extensions[video_format]:
             is_allowed_format = True
 
     return is_video & is_allowed_format
 
 
-def compress_and_save_video(file: FileStorage):
+def compress_and_save_video(file: FileStorage, extension):
     name = uuid.uuid4()
 
-    tmp = tempfile.NamedTemporaryFile(delete=False, dir=temp_folder)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.' + extension, dir=temp_folder)
     try:
+        file.seek(0)
         tmp.write(file.read())
 
-        process = (
+        (
             ffmpeg
             .input(tmp.name)
-            .filter('scale', f'min({media_width},iw)', f'min({media_height},ih)')
-            .output(str(pathlib.Path(f"{media_folder}{name}.mp4")), crf=20, **{'qscale': 0})
-            .overwrite_output()
-            .run_async(pipe_stdin=True)
+            .filter('scale', f'if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))',
+                    f'if(eq(iw/ih, 1), min({media_height}, ih), if(lt(iw/ih, 1), min({media_height}, ih), -2))')
+            .output(str(pathlib.Path(f"{media_folder}{name}.mp4")), crf=28, map=0)
+            .run()
         )
-
-        out, err = process.communicate(input=file.read())
-        if err is None:
-            return str(name)
-        else:
-            return "Error"
     finally:
         tmp.close()
         os.unlink(tmp.name)
 
+    return str(name)
 
+
+# TODO
+def video_hash(path: os.PathLike):
+    return -1

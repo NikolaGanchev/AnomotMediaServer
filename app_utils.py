@@ -5,10 +5,21 @@ from werkzeug.utils import secure_filename
 
 from extension_type import ExtensionType
 
+
+allowed_image_formats = ['png', 'jpeg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
+allowed_video_formats = ['mov', 'mp4', 'matroska']
+
+allowed_image_extensions = ['png', 'jpg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
+allowed_video_extensions = ['mov', 'mp4', 'mkv']
+
+allowed_image_formats_extensions = {'png': 'png', 'jpeg': 'jpg', 'tiff': 'tiff', 'bmp': 'bmp', 'webp': 'webp',
+                                    'heif': ['heif', 'heic']}
+allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv'}
+
 media_folder = "./media/"
 temp_folder = "./temp/"
-media_width = 1080
-media_height = 1080
+media_width = 720
+media_height = 720
 
 
 def get_file_size(file: FileStorage):
@@ -39,3 +50,12 @@ def get_media_path(name, media_type: ExtensionType):
     if not os.path.isfile(f"{media_folder}{secure_filename(name)}.{media_type.value}"):
         return None
     return f"{media_folder}{secure_filename(name)}.{media_type.value}"
+
+
+def determine_media_type(extension):
+    if extension in allowed_image_extensions:
+        return ExtensionType.IMAGE
+    elif extension in allowed_video_extensions:
+        return ExtensionType.VIDEO
+    else:
+        return None

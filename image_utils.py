@@ -7,27 +7,24 @@ from werkzeug.datastructures import FileStorage
 from PIL import Image
 from pillow_heif import register_heif_opener
 
-from app_utils import media_folder, media_width, media_height, get_extension
+from app_utils import media_folder, media_width, media_height, get_extension, allowed_image_formats, \
+    allowed_image_extensions, allowed_image_formats_extensions
 from extension_type import ExtensionType
 
 register_heif_opener()
-
-allowed_image_formats = ['png', 'jpeg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
 
 
 def is_valid_image(file: FileStorage):
     try:
         extension = get_extension(file)
 
-        if extension == 'jpg':
-            extension = 'jpeg'
-
-        if extension not in allowed_image_formats:
+        if extension not in allowed_image_extensions:
             return False
 
         im = Image.open(file)
 
-        if not im.format.lower() in allowed_image_formats or not im.format.lower() == extension:
+        if not im.format.lower() in allowed_image_formats or \
+                extension not in allowed_image_formats_extensions[im.format.lower()]:
             return False
 
         im.load()
@@ -62,7 +59,6 @@ def save_webp_io(img_io):
     with open(f"{media_folder}{name}.{ExtensionType.IMAGE.value}", 'wb') as f:
         f.write(img_io.getbuffer())
     return name.__str__()
-
 
 def save(file: FileStorage):
     try:
