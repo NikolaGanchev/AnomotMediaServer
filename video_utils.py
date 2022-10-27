@@ -4,8 +4,6 @@ import pathlib
 import subprocess
 import tempfile
 import uuid
-
-import ffmpeg
 from werkzeug.datastructures import FileStorage
 
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
@@ -49,15 +47,18 @@ def compress_and_save_video(file: FileStorage, extension):
     try:
         file.seek(0)
         tmp.write(file.read())
+        print(tmp.name)
+        args = ['ffmpeg', '-i', tmp.name,
+                "-vf",
+                f"scale='if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))':'if(eq(iw/ih, 1), min({media_height}, ih), if(lt(iw/ih, 1), min({media_height}, ih), -2))'",
+                '-crf',
+                '28',
+                '-map',
+                '0',
+                str(pathlib.Path(f"{media_folder}{name}.mp4"))]
+        p = subprocess.Popen(args)
+        our, err = p.communicate()
 
-        (
-            ffmpeg
-            .input(tmp.name)
-            .filter('scale', f'if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))',
-                    f'if(eq(iw/ih, 1), min({media_height}, ih), if(lt(iw/ih, 1), min({media_height}, ih), -2))')
-            .output(str(pathlib.Path(f"{media_folder}{name}.mp4")), crf=28, map=0)
-            .run()
-        )
     finally:
         tmp.close()
         os.unlink(tmp.name)

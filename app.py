@@ -11,7 +11,7 @@ from video_utils import is_valid_video, compress_and_save_video, video_hash
 
 app = Flask(__name__)
 
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 70 * 1024 * 1024
 
 
 def set_up_utils():

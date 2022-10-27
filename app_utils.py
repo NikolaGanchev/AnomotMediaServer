@@ -18,8 +18,8 @@ allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv
 
 media_folder = "./media/"
 temp_folder = "./temp/"
-media_width = 720
-media_height = 720
+media_width = 1080
+media_height = 1080
 
 
 def get_file_size(file: FileStorage):
