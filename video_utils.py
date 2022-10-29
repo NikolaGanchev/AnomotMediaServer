@@ -6,6 +6,7 @@ import tempfile
 import uuid
 from werkzeug.datastructures import FileStorage
 
+import videohash
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
     allowed_video_extensions, allowed_video_formats_extensions
 
@@ -67,5 +68,5 @@ def compress_and_save_video(file: FileStorage, extension):
 
 
 # TODO
-def video_hash(path: os.PathLike):
-    return -1
+def video_hash(path):
+    return videohash.video_hash(path)
