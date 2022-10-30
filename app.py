@@ -193,7 +193,7 @@ def get_video_endpoint(name):
             status=404
         )
     else:
-        return send_file(f, mimetype='image/webp')
+        return send_file(f, mimetype='video/mp4')
 
 
 @app.route("/video/valid", methods=['POST'])
@@ -284,6 +284,56 @@ def save_media_endpoint():
             )
 
     return jsonify(MediaSaveResponse(media_type, phash, name).to_dict()), 201
+
+
+@app.route("/media/<name>", methods=['GET'])
+def get_media_endpoint(name):
+    f_video = get_media_path(name, ExtensionType.VIDEO)
+    f_image = get_media_path(name, ExtensionType.IMAGE)
+    if f_video is None and f_image is None:
+        return app.response_class(
+            status=404
+        )
+    else:
+        if f_image is not None and f_video is None:
+            return send_file(f_image, mimetype='image/webp')
+        elif f_video is not None and f_image is None:
+            return send_file(f_video, mimetype='video/mp4')
+        else:
+            # This really shouldn't happen (two files with the same name) and the server should be notified about it
+            return app.response_class(
+                status=500
+            )
+
+
+@app.route("/media/<name>", methods=['DELETE'])
+def delete_media_endpoint(name):
+    f_video = get_media_path(name, ExtensionType.VIDEO)
+    f_image = get_media_path(name, ExtensionType.IMAGE)
+    if f_video is None and f_image is None:
+        return app.response_class(
+            status=404
+        )
+    else:
+        success = False
+        if f_image is not None and f_video is None:
+            success = delete_media(name, ExtensionType.IMAGE)
+        elif f_video is not None and f_image is None:
+            success = delete_media(name, ExtensionType.VIDEO)
+        else:
+            # This really shouldn't happen (two files with the same name) and the server should be notified about it
+            return app.response_class(
+                status=500
+            )
+
+        if success:
+            return app.response_class(
+                status=200
+            )
+        else:
+            return app.response_class(
+                status=5404
+            )
 
 
 if __name__ == '__main__':
