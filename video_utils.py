@@ -11,6 +11,20 @@ from app_utils import media_folder, media_width, media_height, temp_folder, get_
     allowed_video_extensions, allowed_video_formats_extensions
 
 
+class VideoHandler:
+    def __init__(self, file: FileStorage):
+        self.file = file
+
+    def is_valid(self):
+        return self.file and is_valid_video(self.file)
+
+    def save(self, extension):
+        return compress_and_save_video(self.file, extension=extension)
+
+    def phash(self, path):
+        return video_hash(path)
+
+
 def is_valid_video(file: FileStorage):
     extension = get_extension(file)
 

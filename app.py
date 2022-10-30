@@ -6,9 +6,9 @@ from flask import Flask, request, send_file, jsonify
 from app_utils import get_file_size, media_folder, temp_folder, get_media_path, delete_media, determine_media_type, \
     get_extension
 from extension_type import ExtensionType
-from image_utils import is_valid_image, compress_image, save, save_webp_io, image_hash
+from image_utils import is_valid_image, compress_image, save, save_webp_io, image_hash, ImageHandler
 from media_save_response import MediaSaveResponse
-from video_utils import is_valid_video, compress_and_save_video, video_hash
+from video_utils import is_valid_video, compress_and_save_video, video_hash, VideoHandler
 
 app = Flask(__name__)
 
@@ -246,60 +246,44 @@ def save_media_endpoint():
         return app.response_class(
             status=400
         )
+
     file = request.files['file']
     if file.filename == '':
         return app.response_class(
             status=400
         )
+
     extension = get_extension(file)
     media_type = determine_media_type(extension)
     should_hash = request.args.get('phash', type=lambda a: a.lower() == 'true', default=True)
+    handler = None
+
     match media_type:
         case ExtensionType.IMAGE:
-            if not (file and is_valid_image(file)):
-                return app.response_class(
-                    status=415
-                )
-            compressed = compress_image(file)
-            if compressed is None:
-                return app.response_class(
-                    status=415
-                )
-            name = save_webp_io(compressed)
-            phash = None
-            if should_hash:
-                phash = image_hash(get_media_path(name, ExtensionType.IMAGE))
-                if phash is None:
-                    return app.response_class(
-                        status=415
-                    )
-            if name is None:
-                return app.response_class(
-                    status=415
-                )
-            return jsonify(MediaSaveResponse(ExtensionType.IMAGE, phash, name).to_dict()), 201
+            handler = ImageHandler(file)
         case ExtensionType.VIDEO:
-            if not (file and is_valid_video(file)):
-                return app.response_class(
-                    status=415
-                )
-            name = compress_and_save_video(file, extension=extension)
-            phash = None
-            if should_hash:
-                phash = video_hash(get_media_path(name, ExtensionType.VIDEO))
-                if phash is None:
-                    return app.response_class(
-                        status=415
-                    )
-            if name is None:
-                return app.response_class(
-                    status=415
-                )
-            return jsonify(MediaSaveResponse(ExtensionType.VIDEO, phash, name).to_dict()), 201
-        case _:
+            handler = VideoHandler(file)
+
+    if not handler.is_valid():
+        return app.response_class(
+            status=415
+        )
+
+    name = handler.save(extension=extension)
+    if name is None:
+        return app.response_class(
+            status=415
+        )
+
+    phash = None
+    if should_hash:
+        phash = handler.phash(get_media_path(name, media_type))
+        if phash is None:
             return app.response_class(
                 status=415
             )
+
+    return jsonify(MediaSaveResponse(media_type, phash, name).to_dict()), 201
 
 
 if __name__ == '__main__':

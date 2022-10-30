@@ -14,6 +14,23 @@ from extension_type import ExtensionType
 register_heif_opener()
 
 
+class ImageHandler:
+    def __init__(self, file: FileStorage):
+        self.file = file
+
+    def is_valid(self):
+        return self.file and is_valid_image(self.file)
+
+    def save(self, extension):
+        compressed = compress_image(self.file)
+        if compressed is None:
+            return None
+        return save_webp_io(compressed)
+
+    def phash(self, path):
+        return image_hash(path)
+
+
 def is_valid_image(file: FileStorage):
     try:
         extension = get_extension(file)
