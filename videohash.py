@@ -15,17 +15,7 @@ from PIL import Image
 """
 
 
-def video_hash(path):
-    vidcap = cv2.VideoCapture(path)
-    success, image = vidcap.read()
-    count = 0
-    images = []
-    while success:
-        success, image = vidcap.read()
-        if success:
-            images.append(image)
-        count += 1
-
+def video_hash(images):
     image = create_hash_image(images)
     return bin(int(imagehash.phash(image, hash_size=8).__str__(), base=16))[2:].zfill(64)
 

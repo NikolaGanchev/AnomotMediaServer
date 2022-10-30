@@ -10,6 +10,7 @@ from pillow_heif import register_heif_opener
 from app_utils import media_folder, media_width, media_height, get_extension, allowed_image_formats, \
     allowed_image_extensions, allowed_image_formats_extensions
 from extension_type import ExtensionType
+from nsfw_scanner import NsfwScanner
 
 register_heif_opener()
 
@@ -29,6 +30,9 @@ class ImageHandler:
 
     def phash(self, path):
         return image_hash(path)
+
+    def scan_nsfw(self, nsfw_scanner: NsfwScanner):
+        return nsfw_scanner.scan(Image.open(self.file))
 
 
 def is_valid_image(file: FileStorage):

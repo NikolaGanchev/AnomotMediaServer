@@ -7,6 +7,7 @@ from app_utils import media_folder, temp_folder, get_media_path, delete_media, d
 from extension_type import ExtensionType
 from image_utils import ImageHandler
 from media_save_response import MediaSaveResponse
+from nsfw_scanner import NsfwScanner
 from video_utils import VideoHandler
 
 app = Flask(__name__)
@@ -22,6 +23,8 @@ def set_up_utils():
 
 
 set_up_utils()
+
+nsfw_detector = NsfwScanner('./nsfw_model/mobilenet_v2_140_224/saved_model.h5')
 
 
 @app.route("/media", methods=['POST'])
@@ -67,7 +70,9 @@ def save_media_endpoint():
                 status=415
             )
 
-    return jsonify(MediaSaveResponse(media_type, phash, name).to_dict()), 201
+    average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
+
+    return jsonify(MediaSaveResponse(media_type, phash, name, average_nsfw, max_nsfw).to_dict()), 201
 
 
 @app.route("/media/<name>", methods=['GET'])

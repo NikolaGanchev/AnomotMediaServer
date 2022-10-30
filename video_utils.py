@@ -4,15 +4,20 @@ import pathlib
 import subprocess
 import tempfile
 import uuid
+
+import cv2
+from PIL import Image
 from werkzeug.datastructures import FileStorage
 
 import videohash
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
     allowed_video_extensions, allowed_video_formats_extensions
+from nsfw_scanner import NsfwScanner
 
 
 class VideoHandler:
     def __init__(self, file: FileStorage):
+        self.frames = None
         self.file = file
 
     def is_valid(self):
@@ -22,7 +27,12 @@ class VideoHandler:
         return compress_and_save_video(self.file, extension=extension)
 
     def phash(self, path):
-        return video_hash(path)
+        self.frames = get_frames(path)
+        return video_hash(self.frames)
+
+    def scan_nsfw(self, nsfw_scanner: NsfwScanner):
+        return scan_nsfw(self.frames, nsfw_scanner)
+
 
 
 def is_valid_video(file: FileStorage):
@@ -83,6 +93,23 @@ def compress_and_save_video(file: FileStorage, extension):
     return str(name)
 
 
-# TODO
-def video_hash(path):
-    return videohash.video_hash(path)
+def get_frames(path):
+    vidcap = cv2.VideoCapture(path)
+    success, image = vidcap.read()
+    count = 0
+    images = []
+    while success:
+        success, image = vidcap.read()
+        if success:
+            images.append(image)
+        count += 1
+
+    return images
+
+
+def video_hash(frames):
+    return videohash.video_hash(frames)
+
+def scan_nsfw(frames, nsfw_scanner: NsfwScanner):
+    images = [Image.fromarray(x) for x in frames]
+    return nsfw_scanner.scan(images)
