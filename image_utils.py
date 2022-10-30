@@ -60,6 +60,7 @@ def save_webp_io(img_io):
         f.write(img_io.getbuffer())
     return name.__str__()
 
+
 def save(file: FileStorage):
     try:
         im = Image.open(file)

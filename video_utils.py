@@ -51,7 +51,9 @@ def compress_and_save_video(file: FileStorage, extension):
         print(tmp.name)
         args = ['ffmpeg', '-i', tmp.name,
                 "-vf",
-                f"scale='if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))':'if(eq(iw/ih, 1), min({media_height}, ih), if(lt(iw/ih, 1), min({media_height}, ih), -2))'",
+                f"scale='if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))':'if("
+                f"eq(iw/ih, 1), min({media_height}, ih), if(lt(iw/ih, 1), min({media_height}, ih), -2))'"
+                f",fps='if(gt(source_fps,30), 30, source_fps)'",
                 '-crf',
                 '28',
                 '-map',
