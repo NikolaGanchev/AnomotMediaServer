@@ -71,9 +71,9 @@ def save(file: FileStorage):
         return None
 
 
-def image_hash(file: FileStorage):
+def image_hash(path):
     try:
-        im = Image.open(file)
+        im = Image.open(path)
         return bin(int(imagehash.phash(im).__str__(), base=16))[2:].zfill(64)
     except Exception as e:
         return None

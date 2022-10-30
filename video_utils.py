@@ -60,7 +60,7 @@ def compress_and_save_video(file: FileStorage, extension):
                 '0',
                 str(pathlib.Path(f"{media_folder}{name}.mp4"))]
         p = subprocess.Popen(args)
-        our, err = p.communicate()
+        p.communicate()
 
     finally:
         tmp.close()

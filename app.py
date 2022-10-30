@@ -253,6 +253,7 @@ def save_media_endpoint():
         )
     extension = get_extension(file)
     media_type = determine_media_type(extension)
+    should_hash = request.args.get('phash', type=lambda a: a.lower() == 'true', default=True)
     match media_type:
         case ExtensionType.IMAGE:
             if not (file and is_valid_image(file)):
@@ -264,9 +265,15 @@ def save_media_endpoint():
                 return app.response_class(
                     status=415
                 )
-            phash = image_hash(file)
             name = save_webp_io(compressed)
-            if phash is None or name is None:
+            phash = None
+            if should_hash:
+                phash = image_hash(get_media_path(name, ExtensionType.IMAGE))
+                if phash is None:
+                    return app.response_class(
+                        status=415
+                    )
+            if name is None:
                 return app.response_class(
                     status=415
                 )
@@ -277,8 +284,14 @@ def save_media_endpoint():
                     status=415
                 )
             name = compress_and_save_video(file, extension=extension)
-            phash = video_hash(get_media_path(name, ExtensionType.VIDEO))
-            if phash is None or name is None:
+            phash = None
+            if should_hash:
+                phash = video_hash(get_media_path(name, ExtensionType.VIDEO))
+                if phash is None:
+                    return app.response_class(
+                        status=415
+                    )
+            if name is None:
                 return app.response_class(
                     status=415
                 )
