@@ -43,6 +43,7 @@ def save_media_endpoint():
     extension = get_extension(file)
     media_type = determine_media_type(extension)
     should_hash = request.args.get('phash', type=lambda a: a.lower() == 'true', default=True)
+    should_scan_nsfw = request.args.get('nsfw', type=lambda a: a.lower() == 'true', default=True)
     handler = None
 
     match media_type:
@@ -70,7 +71,10 @@ def save_media_endpoint():
                 status=415
             )
 
-    average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
+    average_nsfw, max_nsfw = None, None
+
+    if should_scan_nsfw:
+        average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
 
     return jsonify(MediaSaveResponse(media_type, phash, name, average_nsfw, max_nsfw).to_dict()), 201
 
