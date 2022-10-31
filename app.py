@@ -125,7 +125,7 @@ def delete_media_endpoint(name):
             )
         else:
             return app.response_class(
-                status=5404
+                status=404
             )
 
 
