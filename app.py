@@ -3,8 +3,9 @@ import os
 from flask import Flask, request, send_file, jsonify
 
 from app_utils import media_folder, temp_folder, get_media_path, delete_media, determine_media_type, \
-    get_extension, max_sizes
+    get_extension, max_sizes, file_folder
 from extension_type import ExtensionType
+from file_utils import FileHandler, get_file_path, delete_file
 from image_utils import ImageHandler
 from media_save_response import MediaSaveResponse
 from nsfw_scanner import NsfwScanner
@@ -20,6 +21,8 @@ def set_up_utils():
         os.mkdir(media_folder)
     if not os.path.isdir(temp_folder):
         os.mkdir(temp_folder)
+    if not os.path.isdir(file_folder):
+        os.mkdir(file_folder)
 
 
 set_up_utils()
@@ -132,6 +135,58 @@ def delete_media_endpoint(name):
             return app.response_class(
                 status=404
             )
+
+
+@app.route("/file", methods=['POST'])
+def save_file_endpoint():
+    if 'file' not in request.files:
+        return app.response_class(
+            status=400
+        )
+
+    file = request.files['file']
+    if file.filename == '':
+        return app.response_class(
+            status=400
+        )
+
+    handler = FileHandler(file)
+
+    if not handler.in_size_limit():
+        return app.response_class(
+            status=413
+        )
+
+    id = handler.save()
+
+    return jsonify({'name': file.filename, 'id': id}), 201
+
+
+@app.route("/file/<name>", methods=['GET'])
+def get_file_endpoint(name):
+    file = get_file_path(name)
+
+    if file is None:
+        return app.response_class(
+            status=404
+        )
+
+    return send_file(file, mimetype='application/octet-stream')
+
+
+@app.route("/file/<name>", methods=['DELETE'])
+def delete_file_endpoint(name):
+
+    success = delete_file(name)
+
+    if success:
+        return app.response_class(
+            status=200
+        )
+    else:
+        return app.response_class(
+            status=404
+        )
 
 
 if __name__ == '__main__':

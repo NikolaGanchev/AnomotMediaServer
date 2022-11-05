@@ -18,10 +18,12 @@ allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv
 
 max_image_size = 10 * 1024 * 1024
 max_video_size = 70 * 1024 * 1024
+max_file_size = 5 * 1024 * 1024
 
 max_sizes = [max_image_size, max_video_size]
 
 media_folder = "./media/"
+file_folder = "./files/"
 temp_folder = "./temp/"
 media_width = 1080
 media_height = 1080
