@@ -1,0 +1,9 @@
+Flask==2.2.2
+ImageHash==4.3.1
+nsfw_detector==1.1.1
+numpy==1.23.4
+opencv_contrib_python_headless==4.6.0.66
+Pillow-SIMD==9.0.0.post1
+pillow_heif==0.7.0
+tensorflow==2.10.0
+Werkzeug==2.2.2
