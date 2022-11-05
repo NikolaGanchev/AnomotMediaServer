@@ -1,0 +1,8 @@
+media/
+static/
+temp/
+templates/
+venv/
+files/
+image/
+.idea/
