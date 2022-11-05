@@ -8,7 +8,7 @@ from PIL import Image
 from pillow_heif import register_heif_opener
 
 from app_utils import media_folder, media_width, media_height, get_extension, allowed_image_formats, \
-    allowed_image_extensions, allowed_image_formats_extensions
+    allowed_image_extensions, allowed_image_formats_extensions, get_file_size, max_image_size
 from extension_type import ExtensionType
 from nsfw_scanner import NsfwScanner
 
@@ -18,6 +18,14 @@ register_heif_opener()
 class ImageHandler:
     def __init__(self, file: FileStorage):
         self.file = file
+
+    def in_size_limit(self):
+        size = get_file_size(self.file)
+
+        if size > max_image_size or size < 0:
+            return False
+
+        return True
 
     def is_valid(self):
         return self.file and is_valid_image(self.file)

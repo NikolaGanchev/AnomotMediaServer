@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, send_file, jsonify
 
 from app_utils import media_folder, temp_folder, get_media_path, delete_media, determine_media_type, \
-    get_extension
+    get_extension, max_sizes
 from extension_type import ExtensionType
 from image_utils import ImageHandler
 from media_save_response import MediaSaveResponse
@@ -12,7 +12,7 @@ from video_utils import VideoHandler
 
 app = Flask(__name__)
 
-app.config['MAX_CONTENT_LENGTH'] = 70 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = max(max_sizes)
 
 
 def set_up_utils():
@@ -51,6 +51,11 @@ def save_media_endpoint():
             handler = ImageHandler(file)
         case ExtensionType.VIDEO:
             handler = VideoHandler(file)
+
+    if not handler.in_size_limit():
+        return app.response_class(
+            status=413
+        )
 
     if not handler.is_valid():
         return app.response_class(

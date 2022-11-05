@@ -16,12 +16,18 @@ allowed_image_formats_extensions = {'png': 'png', 'jpeg': 'jpg', 'tiff': 'tiff',
                                     'heif': ['heif', 'heic']}
 allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv'}
 
+max_image_size = 10 * 1024 * 1024
+max_video_size = 70 * 1024 * 1024
+
+max_sizes = [max_image_size, max_video_size]
+
 media_folder = "./media/"
 temp_folder = "./temp/"
 media_width = 1080
 media_height = 1080
 
 
+# Returns the file size in bytes
 def get_file_size(file: FileStorage):
     try:
         current_position = file.tell()

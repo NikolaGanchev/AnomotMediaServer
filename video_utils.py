@@ -11,7 +11,7 @@ from werkzeug.datastructures import FileStorage
 
 import videohash
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
-    allowed_video_extensions, allowed_video_formats_extensions
+    allowed_video_extensions, allowed_video_formats_extensions, get_file_size, max_video_size
 from nsfw_scanner import NsfwScanner
 
 
@@ -19,6 +19,14 @@ class VideoHandler:
     def __init__(self, file: FileStorage):
         self.frames = None
         self.file = file
+
+    def in_size_limit(self):
+        size = get_file_size(self.file)
+
+        if size > max_video_size or size < 0:
+            return False
+
+        return True
 
     def is_valid(self):
         return self.file and is_valid_video(self.file)
