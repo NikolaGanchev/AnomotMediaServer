@@ -15,16 +15,16 @@ RUN apt-get update && apt-get install -y python3-pip \
     libraqm0 && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.txt
-RUN pip install --user -r requirements.txt
+RUN pip install --user --no-deps --no-cache-dir -r requirements.txt
 
 FROM ubuntu:latest
 
-ARG DEBIAN_FRONTEND=noninteractive
-
 RUN apt-get update && apt-get install -y --no-install-recommends python3-pip \
-     ffmpeg && rm -rf /var/lib/apt/lists/*
+     ffmpeg && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY . /app
+
+WORKDIR /app
 
 COPY --from=compile-image /root/.local /root/.local
 
