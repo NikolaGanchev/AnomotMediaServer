@@ -19,6 +19,7 @@ class VideoHandler:
     def __init__(self, file: FileStorage):
         self.frames = None
         self.file = file
+        self.ffprobe = None
 
     def in_size_limit(self):
         size = get_file_size(self.file)
@@ -28,35 +29,57 @@ class VideoHandler:
 
         return True
 
+    def init_ffprobe(self):
+        if self.ffprobe is None:
+            self.ffprobe = ffprobe(self.file)
+
+    def get_duration(self):
+        self.init_ffprobe()
+
+        duration = 0
+        for stream in self.ffprobe['streams']:
+            if stream['codec_type'] == 'video':
+                duration += float(stream['duration'])
+
+        return round(duration, 2)
+
     def is_valid(self):
-        return self.file and is_valid_video(self.file)
+        self.init_ffprobe()
+        return self.file and is_valid_video(self.file, self.ffprobe)
 
     def save(self, extension):
         return compress_and_save_video(self.file, extension=extension)
 
+    def init_self_frames(self, path):
+        if self.frames is None:
+            self.frames = get_frames(path)
+
     def phash(self, path):
-        self.frames = get_frames(path)
+        self.init_self_frames(path)
         return video_hash(self.frames)
 
     def scan_nsfw(self, nsfw_scanner: NsfwScanner):
+        if self.frames is None:
+            raise RuntimeError("Frames need to be initialised before calling scan_nsfw")
         return scan_nsfw(self.frames, nsfw_scanner)
 
 
-
-def is_valid_video(file: FileStorage):
-    extension = get_extension(file)
-
-    if extension not in allowed_video_extensions:
-        return False
-
+def ffprobe(file: FileStorage):
     args = ['ffprobe', 'pipe:', '-show_entries', 'format=format_name,format_long_name', '-show_streams', '-of', 'json']
     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, err = p.communicate(input=file.read())
 
     if p.returncode != 0:
-        return False
+        return None
 
-    response = json.loads(out.decode('utf-8'))
+    return json.loads(out.decode('utf-8'))
+
+
+def is_valid_video(file: FileStorage, response):
+    extension = get_extension(file)
+
+    if extension not in allowed_video_extensions:
+        return False
 
     is_video = False
     for stream in response['streams']:

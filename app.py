@@ -84,7 +84,9 @@ def save_media_endpoint():
     if should_scan_nsfw:
         average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
 
-    return jsonify(MediaSaveResponse(media_type, phash, name, average_nsfw, max_nsfw).to_dict()), 201
+    duration = handler.get_duration()
+
+    return jsonify(MediaSaveResponse(media_type, phash, name, average_nsfw, max_nsfw, duration).to_dict()), 201
 
 
 @app.route("/media/<name>", methods=['GET'])

@@ -27,6 +27,9 @@ class ImageHandler:
 
         return True
 
+    def get_duration(self):
+        return None
+
     def is_valid(self):
         return self.file and is_valid_image(self.file)
 
@@ -40,7 +43,7 @@ class ImageHandler:
         return image_hash(path)
 
     def scan_nsfw(self, nsfw_scanner: NsfwScanner):
-        return nsfw_scanner.scan(Image.open(self.file))
+        return (nsfw_scanner.scan(Image.open(self.file)))[0], None
 
 
 def is_valid_image(file: FileStorage):
