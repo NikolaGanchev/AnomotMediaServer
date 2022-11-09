@@ -7,14 +7,10 @@ RUN apt-get update && apt-get install -y python3-pip  \
     gcc \
     libjpeg-turbo8-dev \
     zlib1g-dev \
-    libtiff5-dev \
     liblcms2-dev \
-    libfreetype6-dev \
     libwebp-dev \
-    libharfbuzz-dev \
-    libfribidi-dev \
     libopenjp2-7-dev \
-    libraqm0 && rm -rf /var/lib/apt/lists/*
+     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
@@ -31,14 +27,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
     python3-pip \
     libjpeg-turbo8-dev \
     zlib1g-dev \
-    libtiff5-dev \
     liblcms2-dev \
-    libfreetype6-dev \
     libwebp-dev \
-    libharfbuzz-dev \
-    libfribidi-dev \
     libopenjp2-7-dev \
-    libraqm0 && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
+    && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
 
 COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/
