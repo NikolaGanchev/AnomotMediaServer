@@ -6,13 +6,13 @@ from werkzeug.utils import secure_filename
 from extension_type import ExtensionType
 
 
-allowed_image_formats = ['png', 'jpeg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
+allowed_image_formats = ['png', 'jpeg', 'webp', 'heif', 'heic']
 allowed_video_formats = ['mov', 'mp4', 'matroska']
 
-allowed_image_extensions = ['png', 'jpg', 'tiff', 'bmp', 'webp', 'heif', 'heic']
+allowed_image_extensions = ['png', 'jpg', 'webp', 'heif', 'heic']
 allowed_video_extensions = ['mov', 'mp4', 'mkv']
 
-allowed_image_formats_extensions = {'png': 'png', 'jpeg': 'jpg', 'tiff': 'tiff', 'bmp': 'bmp', 'webp': 'webp',
+allowed_image_formats_extensions = {'png': 'png', 'jpeg': 'jpg', 'webp': 'webp',
                                     'heif': ['heif', 'heic']}
 allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv'}
 
