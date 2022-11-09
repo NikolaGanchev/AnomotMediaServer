@@ -30,7 +30,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
     liblcms2-dev \
     libwebp-dev \
     libopenjp2-7-dev \
+    clamav \
+    clamav-daemon \
     && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
+
+RUN freshclam
 
 COPY --from=mwader/static-ffmpeg:5.1.2 /ffmpeg /usr/local/bin/
 COPY --from=mwader/static-ffmpeg:5.1.2 /ffprobe /usr/local/bin/

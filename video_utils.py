@@ -66,7 +66,7 @@ class VideoHandler:
 
 def ffprobe(file: FileStorage):
     args = ['ffprobe', 'pipe:', '-show_entries', 'format=format_name,format_long_name', '-show_streams', '-of', 'json']
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = subprocess.Popen(args, stdout=None, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, err = p.communicate(input=file.read())
 
     if p.returncode != 0:

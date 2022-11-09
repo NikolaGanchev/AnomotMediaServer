@@ -178,7 +178,6 @@ def get_file_endpoint(name):
 
 @app.route("/file/<name>", methods=['DELETE'])
 def delete_file_endpoint(name):
-
     success = delete_file(name)
 
     if success:
@@ -189,6 +188,18 @@ def delete_file_endpoint(name):
         return app.response_class(
             status=404
         )
+
+
+@app.route("/file/scan/<name>", methods=['POST'])
+def virus_scan(name):
+    file = get_file_path(name)
+
+    if file is None:
+        return app.response_class(
+            status=404
+        )
+
+    return jsonify({'no_detection': virus_scan(file)}), 200
 
 
 if __name__ == '__main__':
