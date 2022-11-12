@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, request, send_file, jsonify
 
+import virus_scanner
 from app_utils import media_folder, temp_folder, get_media_path, delete_media, determine_media_type, \
     get_extension, max_sizes, file_folder
 from extension_type import ExtensionType
@@ -161,7 +162,11 @@ def save_file_endpoint():
 
     id = handler.save()
 
-    return jsonify({'name': file.filename, 'id': id}), 201
+    answer = {'name': file.filename,
+              'id': id,
+              'threat': virus_scanner.scan_path(f"{file_folder}{id}")}
+
+    return jsonify(answer), 201
 
 
 @app.route("/file/<name>", methods=['GET'])
@@ -188,18 +193,6 @@ def delete_file_endpoint(name):
         return app.response_class(
             status=404
         )
-
-
-@app.route("/file/scan/<name>", methods=['POST'])
-def virus_scan(name):
-    file = get_file_path(name)
-
-    if file is None:
-        return app.response_class(
-            status=404
-        )
-
-    return jsonify({'no_detection': virus_scan(file)}), 200
 
 
 if __name__ == '__main__':

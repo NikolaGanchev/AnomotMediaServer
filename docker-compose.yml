@@ -1,0 +1,15 @@
+services:
+  media_server:
+    image: anomot/media-server
+    ports:
+      - "5000:5000"
+    links:
+      - clamav
+    environment:
+      - CLAMAV_LOCATION=clamav
+      - CLAMAV_PORT=3310
+  clamav:
+    hostname: clamav
+    image: mkodockx/docker-clamav:alpine
+    ports:
+      - "3310:3310"
