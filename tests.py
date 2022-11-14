@@ -4,6 +4,7 @@ import unittest
 from werkzeug.datastructures import FileStorage
 
 from image_utils import ImageHandler
+from video_utils import VideoHandler
 
 
 class ImageTest(unittest.TestCase):
@@ -77,6 +78,50 @@ class ImageTest(unittest.TestCase):
         file = open_as_werkzeug('test_media/test.txt')
         ih = ImageHandler(file)
         self.assertFalse(ih.is_valid())
+        file.close()
+
+
+class VideoTest(unittest.TestCase):
+    def test_mp4_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mp4')
+        video = VideoHandler(file)
+        self.assertTrue(video.is_valid())
+        file.close()
+
+    def test_mkv_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mkv')
+        video = VideoHandler(file)
+        self.assertTrue(video.is_valid())
+        file.close()
+
+    def test_mov_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mov')
+        video = VideoHandler(file)
+        self.assertTrue(video.is_valid())
+        file.close()
+
+    def test_unknown_extension_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test.txt')
+        video = VideoHandler(file)
+        self.assertFalse(video.is_valid())
+        file.close()
+
+    def test_mp4_duration_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mp4')
+        video = VideoHandler(file)
+        self.assertAlmostEqual(round(video.get_duration()), 25)
+        file.close()
+
+    def test_mkv_duration_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mkv')
+        video = VideoHandler(file)
+        self.assertAlmostEqual(round(video.get_duration()), 25)
+        file.close()
+
+    def test_mov_duration_is_correct(self):
+        file = open_as_werkzeug('test_media/test.mov')
+        video = VideoHandler(file)
+        self.assertAlmostEqual(round(video.get_duration()), 25)
         file.close()
 
 
