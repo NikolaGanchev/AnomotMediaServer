@@ -39,13 +39,18 @@ class VideoHandler:
         duration = 0
         for stream in self.ffprobe['streams']:
             if stream['codec_type'] == 'video':
-                duration += float(stream['duration'])
+                if get_extension(self.file) in allowed_video_formats_extensions['matroska']:
+                    hms_time_str = stream['tags']['DURATION']
+                    h, m, s = hms_time_str.split(':')
+                    duration += float(h) * 3600 + float(m) * 60 + float(s)
+                else:
+                    duration += float(stream['duration'])
 
         return round(duration, 2)
 
     def is_valid(self):
         self.init_ffprobe()
-        return self.file and is_valid_video(self.file, self.ffprobe)
+        return self.file is not None and is_valid_video(self.file, self.ffprobe)
 
     def save(self, extension):
         return compress_and_save_video(self.file, extension=extension)
@@ -66,7 +71,7 @@ class VideoHandler:
 
 def ffprobe(file: FileStorage):
     args = ['ffprobe', 'pipe:', '-show_entries', 'format=format_name,format_long_name', '-show_streams', '-of', 'json']
-    p = subprocess.Popen(args, stdout=None, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, err = p.communicate(input=file.read())
 
     if p.returncode != 0:
@@ -103,7 +108,6 @@ def compress_and_save_video(file: FileStorage, extension):
     try:
         file.seek(0)
         tmp.write(file.read())
-        print(tmp.name)
         args = ['ffmpeg', '-i', tmp.name,
                 "-vf",
                 f"scale='if(eq(iw/ih, 1), min({media_width}, iw), if(gt(iw/ih, 1), min({media_width}, iw), -2))':'if("
@@ -140,6 +144,7 @@ def get_frames(path):
 
 def video_hash(frames):
     return videohash.video_hash(frames)
+
 
 def scan_nsfw(frames, nsfw_scanner: NsfwScanner):
     images = [Image.fromarray(x) for x in frames]
