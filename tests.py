@@ -13,6 +13,12 @@ class ImageTest(unittest.TestCase):
         self.assertTrue(ih.is_valid())
         file.close()
 
+    def test_jpeg_is_correct(self):
+        file = open_as_werkzeug('test_media/test.jpeg')
+        ih = ImageHandler(file)
+        self.assertTrue(ih.is_valid())
+        file.close()
+
     def test_png_is_correct(self):
         file = open_as_werkzeug('test_media/test.png')
         ih = ImageHandler(file)
@@ -35,6 +41,42 @@ class ImageTest(unittest.TestCase):
         file = open_as_werkzeug('test_media/test.heic')
         ih = ImageHandler(file)
         self.assertTrue(ih.is_valid())
+        file.close()
+
+    def test_jpg_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test_invalid.jpg')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
+        file.close()
+
+    def test_png_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test_invalid.png')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
+        file.close()
+
+    def test_webp_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test_invalid.webp')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
+        file.close()
+
+    def test_heif_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test_invalid.heif')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
+        file.close()
+
+    def test_heic_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test_invalid.heic')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
+        file.close()
+
+    def test_unknown_extension_is_incorrect(self):
+        file = open_as_werkzeug('test_media/test.txt')
+        ih = ImageHandler(file)
+        self.assertFalse(ih.is_valid())
         file.close()
 
 
