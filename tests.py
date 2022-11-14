@@ -38,10 +38,10 @@ class ImageTest(unittest.TestCase):
         file.close()
 
 
-
 def open_as_werkzeug(path):
     file = open(path, 'rb')
     return FileStorage(file)
+
 
 if __name__ == '__main__':
     unittest.main()

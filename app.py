@@ -55,6 +55,10 @@ def save_media_endpoint():
             handler = ImageHandler(file)
         case ExtensionType.VIDEO:
             handler = VideoHandler(file)
+        case _:
+            return app.response_class(
+                status=400
+            )
 
     if not handler.in_size_limit():
         return app.response_class(
@@ -193,6 +197,59 @@ def delete_file_endpoint(name):
         return app.response_class(
             status=404
         )
+
+
+@app.route("/image/square", methods=['POST'])
+def save_square_image():
+    size = int(request.args.get('size'))
+    if 'file' not in request.files or size is None or size < 0:
+        return app.response_class(
+            status=400
+        )
+
+    file = request.files['file']
+    if file.filename == '':
+        return app.response_class(
+            status=400
+        )
+
+    handler = ImageHandler(file)
+
+    if not handler.in_size_limit():
+        return app.response_class(
+            status=413
+        )
+
+    if not handler.is_valid():
+        return app.response_class(
+            status=415
+        )
+
+    if not handler.is_bigger_or_equal(size, size):
+        return app.response_class(
+            status=415
+        )
+
+    if not handler.get_aspect_ratio() == 1:
+        left = int(request.args.get('left'))
+        top = int(request.args.get('top'))
+        crop_size = int(request.args.get("cropSize"))
+        if left is None or top is None or crop_size is None \
+                or handler.outside_of_image(left + crop_size, top + crop_size)\
+                or left < 0 or top < 0 or crop_size < 0:
+            return app.response_class(
+                status=400
+            )
+
+        handler.crop(left, top, crop_size, crop_size)
+
+    handler.resize(size, size)
+
+    name = handler.save(extension=ExtensionType.IMAGE)
+
+    average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
+
+    return jsonify({'id': name, 'avgNsfw': average_nsfw})
 
 
 if __name__ == '__main__':

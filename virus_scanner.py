@@ -25,7 +25,6 @@ def scan_path(path):
             chunk = file.read(chunk_size)
     except Exception:
         data = s.recv(1024)
-        print("connection aborted", repr(data))
         file.close()
         s.close()
         return False

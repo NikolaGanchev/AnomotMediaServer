@@ -16,7 +16,7 @@ class MediaSaveResponse:
         response = {'type': self.media_type.name.lower(),
                     "phash": self.phash,
                     "id": self.name,
-                    "avNsfw": self.average_nsfw}
+                    "avgNsfw": self.average_nsfw}
 
         if self.max_nsfw is not None:
             response["maxNsfw"] = self.max_nsfw
