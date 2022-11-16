@@ -30,8 +30,6 @@ def save_file(file: FileStorage):
 
 
 def delete_file(name):
-    print(name)
-    print(f"{file_folder}{name}")
     if not os.path.isfile(f"{file_folder}{name}"):
         return False
     os.remove(f"{file_folder}{secure_filename(name)}")
