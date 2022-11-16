@@ -8,8 +8,16 @@ services:
     environment:
       - CLAMAV_LOCATION=clamav
       - CLAMAV_PORT=3310
+    depends_on:
+      clamav:
+        condition: service_healthy
   clamav:
     hostname: clamav
     image: mkodockx/docker-clamav:alpine
     ports:
       - "3310:3310"
+    healthcheck:
+      test: [ "CMD", "./check.sh" ]
+      interval: 60s
+      retries: 3
+      start_period: 120s
