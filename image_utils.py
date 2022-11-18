@@ -107,7 +107,7 @@ class ImageHandler:
 
     def phash(self, path):
         try:
-            return bin(int(imagehash.phash(Image.open(path)).__str__(), base=16))[2:].zfill(64)
+            return imagehash.phash(Image.open(path)).__str__()
         except Exception as e:
             return None
 

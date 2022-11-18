@@ -17,7 +17,7 @@ from PIL import Image
 
 def video_hash(images):
     image = create_hash_image(images)
-    return bin(int(imagehash.phash(image, hash_size=8).__str__(), base=16))[2:].zfill(64)
+    return imagehash.phash(image, hash_size=8).__str__()
 
 
 def create_hash_image(images):
@@ -42,5 +42,3 @@ def create_hash_image(images):
             break
 
     return image
-
-# video_hash("media/afe96e52-142b-45d8-8f32-79965f571db4.mp4")
