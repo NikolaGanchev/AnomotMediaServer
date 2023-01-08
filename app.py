@@ -87,6 +87,8 @@ def save_media_endpoint():
     average_nsfw, max_nsfw = None, None
 
     if should_scan_nsfw:
+        if isinstance(handler, VideoHandler):
+            handler.init_self_frames(get_media_path(name, media_type))
         average_nsfw, max_nsfw = handler.scan_nsfw(nsfw_detector)
 
     duration = handler.get_duration()
