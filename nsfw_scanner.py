@@ -3,7 +3,6 @@ import tensorflow
 from PIL import Image
 from nsfw_detector import predict
 from nsfw_detector.predict import IMAGE_DIM, classify_nd
-from tensorflow.python.estimator import keras
 
 
 class NsfwScanner:

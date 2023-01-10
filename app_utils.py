@@ -17,7 +17,7 @@ allowed_image_formats_extensions = {'png': 'png', 'jpeg': ['jpg', 'jpeg'], 'webp
 allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv'}
 
 max_image_size = os.environ.get("MAX_IMAGE_SIZE", 10 * 1024 * 1024)
-max_video_size = os.environ.get("MAX_VIDEO_SIZE", 70 * 1024 * 1024)
+max_video_size = os.environ.get("MAX_VIDEO_SIZE", 700 * 1024 * 1024)
 max_file_size = os.environ.get("MAX_FILE_SIZE", 5 * 1024 * 1024)
 
 max_sizes = [max_image_size, max_video_size]
