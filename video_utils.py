@@ -125,7 +125,7 @@ def compress_and_save_video(file: FileStorage, extension):
                 '-map',
                 '-0:d',
                 str(pathlib.Path(f"{media_folder}{name}.mp4"))]
-        p = subprocess.Popen(args)
+        p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         p.communicate()
 
     finally:
@@ -148,6 +148,8 @@ def get_frames(path):
     frames = []
 
     for i, scene in enumerate(scenes):
+        if (scene[1].get_frames() - scene[0].get_frames()) < frames_per_scene:
+            frames_per_scene = 1
         frames.extend(random.sample(range(scene[0].get_frames(), scene[1].get_frames()), frames_per_scene))
 
     vidcap = cv2.VideoCapture(path)
@@ -162,12 +164,15 @@ def get_frames(path):
             images.append(image)
         count += 1
 
+    vidcap.release()
+
     return images
 
 
 def get_scenes(path):
-    scene_list = detect(path, ContentDetector(), show_progress=True, start_in_scene=True)
+    scene_list = detect(path, ContentDetector(), start_in_scene=True)
     return scene_list
+
 
 def video_hash(frames):
     return videohash.video_hash(frames)

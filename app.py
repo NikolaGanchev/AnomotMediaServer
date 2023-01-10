@@ -93,6 +93,8 @@ def save_media_endpoint():
 
     duration = handler.get_duration()
 
+    del handler
+
     return jsonify(MediaSaveResponse(media_type, phash, name, average_nsfw, max_nsfw, duration).to_dict()), 201
 
 
