@@ -4,7 +4,7 @@ from flask import Flask, request, send_file, jsonify
 
 import virus_scanner
 from app_utils import media_folder, temp_folder, get_media_path, delete_media, determine_media_type, \
-    get_extension, max_sizes, file_folder
+    get_extension, max_sizes, file_folder, media_width, media_height
 from extension_type import ExtensionType
 from file_utils import FileHandler, get_file_path, delete_file
 from image_utils import ImageHandler
@@ -69,6 +69,12 @@ def save_media_endpoint():
         return app.response_class(
             status=415
         )
+
+    if isinstance(handler, ImageHandler):
+        if not handler.is_bigger_or_equal(media_width, media_height):
+            return app.response_class(
+                status=415
+            )
 
     name = handler.save(extension=extension)
     if name is None:
