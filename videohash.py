@@ -23,7 +23,7 @@ def video_hash(images):
 def create_hash_image(images):
     images = [Image.fromarray(cv2.cvtColor(x, cv2.COLOR_BGR2RGB)).resize((16, 16), Image.ANTIALIAS) for x in images]
     widths, heights = zip(*(i.size for i in images))
-    columns = 30
+    columns = 5
     rows = math.ceil(len(images) / columns)
     total_width = max(widths) * columns
     total_height = max(heights) * rows

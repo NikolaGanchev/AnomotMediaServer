@@ -72,7 +72,7 @@ class ImageHandler:
         return self.im.width / self.im.height
 
     def resize(self, width, height):
-        self.im = self.im.resize((width, height))
+       self.im.thumbnail((width, height))
 
     def save(self, extension):
         if not self.is_valid_image:

@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import pathlib
 import subprocess
@@ -6,7 +7,7 @@ import tempfile
 import uuid
 import random
 
-from scenedetect import detect, ContentDetector
+from scenedetect import detect, ContentDetector, FrameTimecode
 import cv2
 from PIL import Image
 from werkzeug.datastructures import FileStorage
@@ -15,7 +16,6 @@ import videohash
 from app_utils import media_folder, media_width, media_height, temp_folder, get_extension, allowed_video_formats, \
     allowed_video_extensions, allowed_video_formats_extensions, get_file_size, max_video_size
 from nsfw_scanner import NsfwScanner
-import time
 
 
 class VideoHandler:
@@ -23,6 +23,7 @@ class VideoHandler:
         self.frames = None
         self.file = file
         self.ffprobe = None
+        self.scenes = None
 
     def in_size_limit(self):
         size = get_file_size(self.file)
@@ -59,12 +60,16 @@ class VideoHandler:
         return compress_and_save_video(self.file, extension=extension)
 
     def init_self_frames(self, path):
+        if self.scenes is None:
+            self.init_scenes(path)
+
         if self.frames is None:
-            self.frames = get_frames(path)
+            self.frames = get_frames(path, self.scenes)
 
     def phash(self, path):
-        self.init_self_frames(path)
-        return video_hash(self.frames)
+        if self.scenes is None:
+            self.init_scenes(path)
+        return video_hash(self.scenes, path)
 
     def scan_nsfw(self, nsfw_scanner: NsfwScanner):
         if self.frames is None:
@@ -72,6 +77,9 @@ class VideoHandler:
         result = scan_nsfw(self.frames, nsfw_scanner)
         self.frames = None
         return result
+
+    def init_scenes(self, path):
+        self.scenes = get_scenes(path)
 
 
 def ffprobe(file: FileStorage):
@@ -135,9 +143,7 @@ def compress_and_save_video(file: FileStorage, extension):
     return str(name)
 
 
-def get_frames(path):
-    scenes = get_scenes(path)
-
+def get_frames(path, scenes):
     frames_per_scene = 3
 
     if len(scenes) > 30:
@@ -152,6 +158,15 @@ def get_frames(path):
             frames_per_scene = 1
         frames.extend(random.sample(range(scene[0].get_frames(), scene[1].get_frames()), frames_per_scene))
 
+    return extract_images_from_frames(frames, path)
+
+
+def get_scenes(path):
+    scene_list = detect(path, ContentDetector(), start_in_scene=True)
+    return scene_list
+
+
+def extract_images_from_frames(frames, path):
     vidcap = cv2.VideoCapture(path)
     success, image = vidcap.read()
     count = 0
@@ -169,13 +184,15 @@ def get_frames(path):
     return images
 
 
-def get_scenes(path):
-    scene_list = detect(path, ContentDetector(), start_in_scene=True)
-    return scene_list
+def video_hash(scenes, path):
+    frames = []
 
+    for i, scene in enumerate(scenes):
+        frames.append(scene[0].get_frames())
+        frames.append(math.floor(scene[0].get_frames() + (scene[1].get_frames() - scene[0].get_frames()) / 2))
+        frames.append(scene[1].get_frames())
 
-def video_hash(frames):
-    return videohash.video_hash(frames)
+    return videohash.video_hash(extract_images_from_frames(frames, path))
 
 
 def scan_nsfw(frames, nsfw_scanner: NsfwScanner):

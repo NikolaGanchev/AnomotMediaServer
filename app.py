@@ -154,6 +154,38 @@ def delete_media_endpoint(name):
             )
 
 
+# Deletes all media, ignoring any errors
+@app.route("/media/mass", methods=['DELETE'])
+def mass_delete_media_endpoint():
+    if request.data:
+        json = request.get_json()
+        names = json["ids"]
+    else:
+        return app.response_class(
+                    status=400
+                )
+
+    for name in names:
+        f_video = get_media_path(name, ExtensionType.VIDEO)
+        f_image = get_media_path(name, ExtensionType.IMAGE)
+        if f_video is None and f_image is None:
+            continue
+        else:
+            if f_image is not None and f_video is None:
+                delete_media(name, ExtensionType.IMAGE)
+            elif f_video is not None and f_image is None:
+                delete_media(name, ExtensionType.VIDEO)
+            else:
+                # This really shouldn't happen (two files with the same name) and the server should be notified about it
+                return app.response_class(
+                    status=500
+                )
+
+    return app.response_class(
+        status=200
+    )
+
+
 @app.route("/file", methods=['POST'])
 def save_file_endpoint():
     if 'file' not in request.files:
@@ -207,6 +239,23 @@ def delete_file_endpoint(name):
         return app.response_class(
             status=404
         )
+
+
+@app.route("/file/mass", methods=['DELETE'])
+def mass_delete_file_endpoint():
+    if request.data:
+        json = request.get_json()
+        names = json["ids"]
+    else:
+        return app.response_class(
+                    status=400
+                )
+    for name in names:
+        delete_file(name)
+
+    return app.response_class(
+        status=200
+    )
 
 
 @app.route("/image/square", methods=['POST'])

@@ -1,5 +1,6 @@
 services:
   media_server:
+    container_name: media
     image: anomot/media-server
     ports:
       - "5000:5000"
@@ -11,6 +12,9 @@ services:
     depends_on:
       clamav:
         condition: service_healthy
+    networks:
+      - net
+      - default
   clamav:
     hostname: clamav
     image: mkodockx/docker-clamav:alpine
@@ -21,3 +25,7 @@ services:
       interval: 60s
       retries: 3
       start_period: 120s
+networks:
+  net:
+    driver: bridge
+    name: net
