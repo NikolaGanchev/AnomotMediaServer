@@ -15,6 +15,8 @@ services:
     networks:
       - net
       - default
+    volumes:
+      - media:/app/media
   clamav:
     hostname: clamav
     image: mkodockx/docker-clamav:alpine
@@ -22,10 +24,12 @@ services:
       - "3310:3310"
     healthcheck:
       test: [ "CMD", "./check.sh" ]
-      interval: 60s
-      retries: 3
+      interval: 30s
+      retries: 6
       start_period: 120s
 networks:
   net:
     driver: bridge
     name: net
+volumes:
+  media:
