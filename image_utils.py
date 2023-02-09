@@ -90,13 +90,7 @@ class ImageHandler:
             img_io = BytesIO()
 
             if not (self.im.width < media_width and self.im.height < media_height):
-                aspect_ratio = self.im.width / self.im.height
-                if aspect_ratio > 1:
-                    self.im.thumbnail((round(aspect_ratio * media_width), media_height))
-                elif aspect_ratio < 1:
-                    self.im.thumbnail((media_width, round(aspect_ratio * media_height)))
-                else:
-                    self.im.thumbnail(media_width, media_height)
+                self.im.thumbnail((media_width, media_height))
 
             self.im.save(img_io, format='webp', quality=quality, optimise=True)
             img_io.seek(0)
