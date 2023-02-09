@@ -44,7 +44,7 @@ def get_file_size(file: FileStorage):
 
 def get_extension(file: FileStorage):
     filename, file_extension = os.path.splitext(file.filename)
-    return file_extension[1:]  # remove the dot in the extension
+    return file_extension[1:].lower()  # remove the dot in the extension
 
 
 def delete_media(name, media_type: ExtensionType):
