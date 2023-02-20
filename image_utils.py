@@ -4,6 +4,7 @@ from io import BytesIO
 import imagehash
 from werkzeug.datastructures import FileStorage
 from PIL import Image
+from PIL import ImageOps
 from pillow_heif import register_heif_opener
 
 from app_utils import media_folder, media_width, media_height, get_extension, allowed_image_formats, \
@@ -47,6 +48,7 @@ class ImageHandler:
                 return False
 
             self.im.load()
+            self.im = ImageOps.exif_transpose(self.im)
             return True
         except Exception:
             self.im = None

@@ -17,7 +17,7 @@ ENV PATH="/venv/bin:$PATH"
 
 COPY requirements.txt requirements.txt
 RUN pip install --no-deps --no-cache-dir -r requirements.txt \
-     && CFLAGS="${CFLAGS} -mavx2" pip install --upgrade --no-cache-dir --force-reinstall --no-binary :all: --compile Pillow-SIMD==9.0.0.post1
+     && CFLAGS="${CFLAGS} -msse4" pip install --upgrade --no-cache-dir --force-reinstall --no-binary :all: --compile Pillow-SIMD==9.0.0.post1
 
 FROM ubuntu:latest
 

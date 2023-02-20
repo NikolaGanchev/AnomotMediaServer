@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import Flask, request, send_file, jsonify
@@ -162,8 +163,8 @@ def mass_delete_media_endpoint():
         names = json["ids"]
     else:
         return app.response_class(
-                    status=400
-                )
+            status=400
+        )
 
     for name in names:
         f_video = get_media_path(name, ExtensionType.VIDEO)
@@ -248,8 +249,8 @@ def mass_delete_file_endpoint():
         names = json["ids"]
     else:
         return app.response_class(
-                    status=400
-                )
+            status=400
+        )
     for name in names:
         delete_file(name)
 
@@ -294,7 +295,7 @@ def save_square_image():
         top = int(request.args.get('top'))
         crop_size = int(request.args.get("cropSize"))
         if left is None or top is None or crop_size is None \
-                or handler.outside_of_image(left + crop_size, top + crop_size)\
+                or handler.outside_of_image(left + crop_size, top + crop_size) \
                 or left < 0 or top < 0 or crop_size < 0:
             return app.response_class(
                 status=400
