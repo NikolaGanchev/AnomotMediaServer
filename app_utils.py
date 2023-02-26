@@ -16,17 +16,17 @@ allowed_image_formats_extensions = {'png': 'png', 'jpeg': ['jpg', 'jpeg'], 'webp
                                     'heif': ['heif', 'heic']}
 allowed_video_formats_extensions = {'mov': 'mov', 'mp4': 'mp4', 'matroska': 'mkv'}
 
-max_image_size = os.environ.get("MAX_IMAGE_SIZE", 10 * 1024 * 1024)
-max_video_size = os.environ.get("MAX_VIDEO_SIZE", 100 * 1024 * 1024)
-max_file_size = os.environ.get("MAX_FILE_SIZE", 5 * 1024 * 1024)
+max_image_size = int(os.environ.get("MAX_IMAGE_SIZE", 20 * 1024 * 1024))
+max_video_size = int(os.environ.get("MAX_VIDEO_SIZE", 100 * 1024 * 1024))
+max_file_size = int(os.environ.get("MAX_FILE_SIZE", 5 * 1024 * 1024))
 
 max_sizes = [max_image_size, max_video_size]
 
 media_folder = os.environ.get("MEDIA_FOLDER", "./media/")
 file_folder = os.environ.get("FILE_FOLDER", "./files/")
 temp_folder = os.environ.get("TEMP_FOLDER", "./temp/")
-media_width = os.environ.get("MEDIA_WIDTH", 1080)
-media_height = os.environ.get("MEDIA_HEIGHT", 1080)
+media_width = int(os.environ.get("MEDIA_WIDTH", 1080))
+media_height = int(os.environ.get("MEDIA_HEIGHT", 1080))
 
 
 # Returns the file size in bytes
